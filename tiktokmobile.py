@@ -1,9 +1,11 @@
-
-import time, os, random
-from rich.console import Console
-from datetime import datetime
-import cloudscraper 
-from colorama import Fore, Style
+try:
+    import time, os, random
+    from rich.console import Console
+    from datetime import datetime
+    import cloudscraper 
+    from colorama import Fore, Style
+except:
+    os.system("pip install cloudscraper ")
 scraper = cloudscraper.create_scraper()
 CYAN = '\033[96m'
 GREEN = '\033[92m'
@@ -315,7 +317,7 @@ def banner():
     print("")
     console.print("[bold magenta]                      Welcome to[/bold magenta][bold yellow] the 𝓑𝓞𝓢𝓢 [/bold yellow]")
     console.print("[bold magenta]                 ╚═╦════════════[/bold magenta][bold yellow]══════════╦═╝")
-    console.print("[bold magenta]══════════════════════════[ TIK[/bold magenta] [bold yellow]TOK ]════════════════════════[/bold yellow]")
+    console.print("[bold magenta]══════════════════════════[ TIK[/bold magenta][bold yellow]TOK ]════════════════════════[/bold yellow]")
 def get_nick(headers):
     global soacc
     headers = build_headers(aut)
@@ -326,7 +328,7 @@ def get_nick(headers):
     for user in response['data']:
         soacc += 1
 
-        print(f"{Fore.CYAN}[{soacc}]{Style.RESET_ALL} {Fore.GREEN}{user['nickname']}{Style.RESET_ALL} => {Fore.YELLOW}{user['unique_username']}{Style.RESET_ALL} (ID: {Fore.MAGENTA}{user['id']}{Style.RESET_ALL})")    
+        print(f"{Fore.CYAN}[{soacc}]{Style.RESET_ALL} {MAGENTA}{user['nickname']}{Style.RESET_ALL} => {Fore.YELLOW}{user['unique_username']}{Style.RESET_ALL}")    
         accounts.append({
             "acc_id": user['id'],
             "nickname": user['nickname'],
@@ -335,18 +337,18 @@ def get_nick(headers):
 
     # Lặp lại nếu người dùng chọn sai
     while True:
-        choice = input("Nhập số tài khoản muốn chọn: ")
+        choice = console.input(" [bold red][[bold yellow]𝓑𝓞𝓢𝓢[/bold yellow] [bold white]|[/bold white][bold magenta]Nhập lựa chọn[/bold magenta]][/bold red][bold green]#   ")
         
         if not choice.isdigit():
-            print("❌ Vui lòng nhập số (ví dụ: 1, 2, 3...)!", end="\r")
+            print("Vui lòng nhập số (ví dụ: 1, 2, 3...)!", end="\r")
             continue
 
         index = int(choice) - 1
 
         if 0 <= index < len(accounts):
             selected_acc = accounts[index]
-            print(f"✅ Bạn đã chọn: {selected_acc['nickname']} với username: {selected_acc['username']}")
-            second = float(input("Nhập delay job: "))
+           
+            second = float(console.input(" [bold red][[bold yellow]𝓑𝓞𝓢𝓢[/bold yellow] [bold white]|[/bold white][bold magenta]Nhập delay[/bold magenta]][/bold red][bold green]#   "))
             get_job(headers, selected_acc, second)  # gọi hàm xử lý nhiệm vụ
             break  # thoát khỏi vòng lặp chọn acc
         else:
@@ -384,7 +386,7 @@ def get_job(headers, selected_acc, second):
                 account_id_die = first_job['account_id']
                 job_type = first_job['type']
                 link = response ['data']['link']
-                os.system(f'am start -a android.intent.action.VIEW -d "{link}"')
+                os.system(f"termux-open-url '{link}'")
 
                 delay(second)
                 done_job_data = {
@@ -393,18 +395,18 @@ def get_job(headers, selected_acc, second):
                     'async': True,
                     'data': None,
                 }
-                done_job = scraper.post("https://gateway.golike.net/api/advertising/publishers/tiktok/complete-jobs", headers=headers, impersonate="chrome101", json=done_job_data).json()
+                done_job = scraper.post("https://gateway.golike.net/api/advertising/publishers/tiktok/complete-jobs", headers=headers, json=done_job_data).json()
                 print(done_job)
                 if done_job['status'] == 200:
                     tongxu += xu_tiktok
                     biendem += 1
                     headers = build_headers(aut)
-                    response = scraper.get('https://gateway.golike.net/api/statistics/report', headers=headers, impersonate="chrome101")
+                    response = scraper.get('https://gateway.golike.net/api/statistics/report', headers=headers)
                     user = response.json()
                     sotien = user['tiktok']['pending_coin']
                     print(f" [{CYAN}{biendem}{RESET}]  {YELLOW}{id_titok}{RESET} | {RED}{type_tiktok}{RESET} | {GREEN}+{xu_tiktok}{RESET} => {MAGENTA}Tổng: {tongxu}{RESET} | {YELLOW}Số tiền: {sotien} {RESET}| {BLUE}Time: {datetime.now().strftime('%H:%M:%S')}{RESET} |  ")
                 else:
-                    done_job_1 = scraper.post("https://gateway.golike.net/api/advertising/publishers/tiktok/complete-jobs", headers=headers, impersonate="chrome101", json=done_job_data).json()
+                    done_job_1 = scraper.post("https://gateway.golike.net/api/advertising/publishers/tiktok/complete-jobs", headers=headers, json=done_job_data).json()
                     print(done_job_1)
                     if not done_job_1 ['success']:
                         json_data = {
@@ -418,7 +420,6 @@ def get_job(headers, selected_acc, second):
                         die_job = scraper.post(
                             "https://gateway.golike.net/api/report/send",
                             headers=headers,
-                            impersonate="chrome101",
                             json=json_data
                         ).json()
                         print(die_job)
@@ -431,7 +432,7 @@ def get_job(headers, selected_acc, second):
                         die_job_post = scraper.post(
                             'https://gateway.golike.net/api/advertising/publishers/tiktok/skip-jobs',
                             headers=headers,
-                            impersonate="chrome101",
+                            
                             json=die_json_data
                         ).json()
                         print(die_job_post)
@@ -453,7 +454,7 @@ def get_job(headers, selected_acc, second):
                 die_job_1 = scraper.post(
                     "https://gateway.golike.net/api/report/send",
                     headers=headers,
-                    impersonate="chrome101",
+                    
                     json=json_data_1
                 ).json()
                 print(die_job_1)
@@ -466,7 +467,7 @@ def get_job(headers, selected_acc, second):
                 die_job_post_1 = scraper.post(
                     'https://gateway.golike.net/api/advertising/publishers/tiktok/skip-jobs',
                     headers=headers,
-                    impersonate="chrome101",
+                    
                     json=die_json_data_1
                 ).json()
                 print(die_job_post_1)
