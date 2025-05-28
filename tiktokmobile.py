@@ -7,6 +7,7 @@ try:
 except:
     os.system("pip install cloudscraper ")
 scraper = cloudscraper.create_scraper()
+#session =cloudscraper.create_scraper()
 CYAN = '\033[96m'
 GREEN = '\033[92m'
 YELLOW = '\033[93m'
@@ -397,7 +398,7 @@ def get_job(headers, selected_acc, second):
                         'fb_id': account_id_die ,
                         'error_type': 0,
                     }
-                    die_job = session.post(
+                    die_job = scraper.post(
                         "https://gateway.golike.net/api/report/send",
                         headers=headers,
                         impersonate="chrome101",
@@ -410,7 +411,7 @@ def get_job(headers, selected_acc, second):
                         'account_id': account_id_die,
                         'type': job_type,
                     }
-                    die_job_post = session.post(
+                    die_job_post = scraper.post(
                         'https://gateway.golike.net/api/advertising/publishers/tiktok/skip-jobs',
                         headers=headers,
                         impersonate="chrome101",
@@ -506,8 +507,9 @@ def get_job(headers, selected_acc, second):
                     
                     json=die_json_data_1
                 ).json()
-                time.sleep(1)
-                print(" "*100)
+                print(" "*30, end="\r")
+                delay(1)
+                
         except Exception as e:
             print(e)
             continue
