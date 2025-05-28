@@ -401,7 +401,7 @@ def get_job(headers, selected_acc, second):
                     die_job = scraper.post(
                         "https://gateway.golike.net/api/report/send",
                         headers=headers,
-                        impersonate="chrome101",
+                        
                         json=json_data
                     ).json()
                     #print(die_job)
@@ -414,7 +414,7 @@ def get_job(headers, selected_acc, second):
                     die_job_post = scraper.post(
                         'https://gateway.golike.net/api/advertising/publishers/tiktok/skip-jobs',
                         headers=headers,
-                        impersonate="chrome101",
+                        
                         json=die_json_data
                     ).json()
                     #print(die_job_post)
