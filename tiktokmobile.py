@@ -367,6 +367,7 @@ def get_job(headers, selected_acc, second):
                 f'https://gateway.golike.net/api/advertising/publishers/tiktok/jobs?account_id={account_id}&data=null',
                 headers=headers,
             ).json()
+            #print(response)
             id_titok = response ['data']['object_id']
             type_tiktok = response ['data']['type']
             xu_tiktok = response['data']['price_per_after_cost']
@@ -473,7 +474,7 @@ def get_job(headers, selected_acc, second):
                             json=die_json_data
                         ).json()
                         #print(die_job_post)
-                        print(" "*100, end="\r")
+                        print(" "*5, end="\r")
                         die_job_tiktok += 1
                         if die_job_tiktok % 10 == 0:
                             print(f"{RED}Nick lỏ như cc nhả rồi kìa đập máy đi{RESET}")
@@ -507,7 +508,7 @@ def get_job(headers, selected_acc, second):
                     
                     json=die_json_data_1
                 ).json()
-                print(" "*30, end="\r")
+                print(" "*5, end="\r")
                 delay(1)
                 
         except Exception as e:
