@@ -369,24 +369,58 @@ def get_job(headers, selected_acc, second):
             id_titok = response ['data']['object_id']
             type_tiktok = response ['data']['type']
             xu_tiktok = response['data']['price_per_after_cost']
-            print(f"{response['data']['link']}")
-            print(f"{response['data']['type']}")
-            print(response['lock']['message'])
-            if type_tiktok in ("follow", "like"):
-                job.append({
+            riengtu = response['data']['viewer']
+            #print(f"{response['data']['link']}")
+
+            #print(f"{response['data']['type']}")
+            #print(response['lock']['message'])
+            job.append({
                     'ads_id': response ['lock']['ads_id'],
                     'object_id': response ['lock']['object_id'],
                     'account_id': response ['lock']['account_id'],
                     'type': response ['lock']['type']
                 })
-                first_job = job[0]
+            first_job = job[0]
 
-                ads_id = first_job['ads_id']
-                object_id = first_job['object_id']
-                account_id_die = first_job['account_id']
-                job_type = first_job['type']
-                link = response ['data']['link']
-                os.system(f"termux-open-url '{link}'")
+            ads_id = first_job['ads_id']
+            object_id = first_job['object_id']
+            account_id_die = first_job['account_id']
+            job_type = first_job['type']
+            link = response ['data']['link']
+            if type_tiktok in ("follow", "like"):
+                if 1 <= riengtu <= 50:
+                    json_data = {
+                        'description': 'Tôi không muốn làm Job này',
+                        'users_advertising_id': account_id,
+                        'type': 'ads',
+                        'provider': 'tiktok',
+                        'fb_id': account_id_die ,
+                        'error_type': 0,
+                    }
+                    die_job = session.post(
+                        "https://gateway.golike.net/api/report/send",
+                        headers=headers,
+                        impersonate="chrome101",
+                        json=json_data
+                    ).json()
+                    #print(die_job)
+                    die_json_data = {
+                        'ads_id': ads_id,
+                        'object_id': object_id,
+                        'account_id': account_id_die,
+                        'type': job_type,
+                    }
+                    die_job_post = session.post(
+                        'https://gateway.golike.net/api/advertising/publishers/tiktok/skip-jobs',
+                        headers=headers,
+                        impersonate="chrome101",
+                        json=die_json_data
+                    ).json()
+                    #print(die_job_post)
+                    continue
+                else:
+                    time.sleep(0.1)
+                os.system(f"termux-open-url '{link}'>nul 2>&1 ")
 
                 delay(second)
                 done_job_data = {
@@ -396,7 +430,7 @@ def get_job(headers, selected_acc, second):
                     'data': None,
                 }
                 done_job = scraper.post("https://gateway.golike.net/api/advertising/publishers/tiktok/complete-jobs", headers=headers, json=done_job_data).json()
-                print(done_job)
+                #print(done_job)
                 if done_job['status'] == 200:
                     tongxu += xu_tiktok
                     biendem += 1
@@ -407,8 +441,10 @@ def get_job(headers, selected_acc, second):
                     print(f" [{CYAN}{biendem}{RESET}]  {YELLOW}{id_titok}{RESET} | {RED}{type_tiktok}{RESET} | {GREEN}+{xu_tiktok}{RESET} => {MAGENTA}Tổng: {tongxu}{RESET} | {YELLOW}Số tiền: {sotien} {RESET}| {BLUE}Time: {datetime.now().strftime('%H:%M:%S')}{RESET} |  ")
                 else:
                     done_job_1 = scraper.post("https://gateway.golike.net/api/advertising/publishers/tiktok/complete-jobs", headers=headers, json=done_job_data).json()
-                    print(done_job_1)
+                    #print(done_job_1)
+
                     if not done_job_1 ['success']:
+                        print(f"{RED}                    PASS               {RESET}", end="\r") 
                         json_data = {
                             'description': 'Tôi không muốn làm Job này',
                             'users_advertising_id': account_id,
@@ -422,7 +458,7 @@ def get_job(headers, selected_acc, second):
                             headers=headers,
                             json=json_data
                         ).json()
-                        print(die_job)
+                        #print(die_job)
                         die_json_data = {
                             'ads_id': ads_id,
                             'object_id': object_id,
@@ -435,14 +471,14 @@ def get_job(headers, selected_acc, second):
                             
                             json=die_json_data
                         ).json()
-                        print(die_job_post)
+                        #print(die_job_post)
+                        print(" "*100, end="\r")
                         die_job_tiktok += 1
                         if die_job_tiktok % 10 == 0:
                             print(f"{RED}Nick lỏ như cc nhả rồi kìa đập máy đi{RESET}")
                             get_nick(headers)
             else:
-                print("Job ko nằm trong type")
-                delay(2)          
+                print(f"{RED}                    PASS               ", end="\r")          
                 json_data_1 = {
                     'description': 'Tôi không muốn làm Job này',
                     'users_advertising_id': account_id,
@@ -457,7 +493,7 @@ def get_job(headers, selected_acc, second):
                     
                     json=json_data_1
                 ).json()
-                print(die_job_1)
+                #print(die_job_1)
                 die_json_data_1 = {
                     'ads_id': ads_id,
                     'object_id': object_id,
@@ -470,12 +506,10 @@ def get_job(headers, selected_acc, second):
                     
                     json=die_json_data_1
                 ).json()
-                print(die_job_post_1)
-                die_job_tiktok += 1
-                if die_job_tiktok % 10 == 0:
-                    print(f"{RED}Nick lỏ như cc nhả rồi kìa đập máy đi{RESET}")
-                    get_nick(headers)  
+                time.sleep(1)
+                print(" "*100)
         except Exception as e:
+            print(e)
             continue
     
 # ======= MAIN ======
