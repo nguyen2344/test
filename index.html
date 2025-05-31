@@ -13,7 +13,7 @@
       font-family: 'Arial', sans-serif;
     }
 
-    /* Lớp nền xoay */
+    /* Nền 3D để xoay */
     #background-rotation {
       position: absolute;
       width: 100vw;
@@ -27,10 +27,10 @@
       width: 100%;
       height: 100%;
       transform-style: preserve-3d;
-      transition: transform 0.1s linear;
+      /* Không dùng transition để xoay mượt theo requestAnimationFrame */
     }
 
-    /* Hiệu ứng rơi */
+    /* Lớp rơi trái tim và chữ */
     #overlay {
       position: absolute;
       top: 0;
@@ -104,7 +104,7 @@
     const text = document.createElement('div');
     text.classList.add('falling-text');
     text.textContent = textList[Math.floor(Math.random() * textList.length)];
-    text.style.left = random(0, window.innerWidth - 100) + 'px';
+    text.style.left = random(0, window.innerWidth - 120) + 'px';
     text.style.top = '-50px';
     text.style.fontSize = random(18, 40) + 'px';
     text.style.animationDuration = random(2, 5) + 's';
@@ -130,19 +130,51 @@
     if (document.querySelectorAll('.heart').length < maxHearts) createHeart();
   }, 80);
 
-  // Xoay nền theo chuột/touch
+  // Xoay nền theo chuột/vuốt tay với quán tính (inertia)
   let rotateX = 0, rotateY = 0;
+  let velocityX = 0, velocityY = 0;
   let lastX = 0, lastY = 0;
   let dragging = false;
+  const friction = 0.95;  // hệ số giảm tốc
 
-  function updateRotation(dx, dy) {
-    rotateY += dx * 0.2;
-    rotateX -= dy * 0.2;
+  function animate() {
+    if (!dragging) {
+      // Giảm vận tốc theo friction
+      velocityX *= friction;
+      velocityY *= friction;
+
+      // Cập nhật góc xoay theo vận tốc
+      rotateX += velocityY;
+      rotateY += velocityX;
+
+      // Giới hạn góc xoay X
+      rotateX = Math.max(-60, Math.min(60, rotateX));
+
+      // Cập nhật transform
+      scene.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+      // Dừng nếu vận tốc rất nhỏ
+      if (Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01) {
+        velocityX = 0;
+        velocityY = 0;
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  // Cập nhật vận tốc khi kéo/vuốt
+  function updateVelocity(dx, dy) {
+    velocityX = dx * 0.3;
+    velocityY = dy * 0.3;
+    rotateX -= dy * 0.3;
+    rotateY += dx * 0.3;
+
     rotateX = Math.max(-60, Math.min(60, rotateX));
     scene.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
   }
 
-  // PC: chuột
+  // Sự kiện chuột
   document.addEventListener('mousedown', e => {
     dragging = true;
     lastX = e.clientX;
@@ -153,12 +185,12 @@
     if (!dragging) return;
     const dx = e.clientX - lastX;
     const dy = e.clientY - lastY;
-    updateRotation(dx, dy);
+    updateVelocity(dx, dy);
     lastX = e.clientX;
     lastY = e.clientY;
   });
 
-  // Mobile: vuốt tay
+  // Sự kiện cảm ứng (mobile)
   document.addEventListener('touchstart', e => {
     dragging = true;
     lastX = e.touches[0].clientX;
@@ -169,7 +201,7 @@
     if (!dragging) return;
     const dx = e.touches[0].clientX - lastX;
     const dy = e.touches[0].clientY - lastY;
-    updateRotation(dx, dy);
+    updateVelocity(dx, dy);
     lastX = e.touches[0].clientX;
     lastY = e.touches[0].clientY;
   });
