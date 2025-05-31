@@ -6,20 +6,40 @@
   <title>Nguyên đẹp trai + Anh yêu em</title>
   <style>
     html, body {
-      height: 100%;
       margin: 0;
+      height: 100%;
       overflow: hidden;
       background: #000;
       font-family: 'Arial', sans-serif;
+    }
+
+    /* Lớp nền xoay */
+    #background-rotation {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
       perspective: 1000px;
+      z-index: 0;
+      pointer-events: none;
     }
 
     #scene {
       width: 100%;
       height: 100%;
       transform-style: preserve-3d;
-      position: relative;
       transition: transform 0.1s linear;
+    }
+
+    /* Hiệu ứng rơi */
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      z-index: 1;
+      pointer-events: none;
     }
 
     .falling-text, .heart {
@@ -46,14 +66,14 @@
 
     @keyframes fallText {
       to {
-        transform: translateY(100vh) translateZ(100px);
+        transform: translateY(100vh);
         opacity: 0;
       }
     }
 
     @keyframes fallHeart {
       to {
-        transform: translateY(100vh) translateZ(100px);
+        transform: translateY(100vh);
         opacity: 0;
       }
     }
@@ -61,13 +81,20 @@
 </head>
 <body>
 
-<div id="scene"></div>
+<!-- Nền 3D để xoay -->
+<div id="background-rotation">
+  <div id="scene"></div>
+</div>
+
+<!-- Lớp rơi trái tim và chữ -->
+<div id="overlay"></div>
 
 <script>
-  const container = document.getElementById('scene');
-  const maxTexts = 300;
-  const maxHearts = 150;
+  const overlay = document.getElementById('overlay');
+  const scene = document.getElementById('scene');
   const textList = ["Anh yêu em", "Nguyên đẹp trai"];
+  const maxTexts = 300;
+  const maxHearts = 200;
 
   function random(min, max) {
     return Math.random() * (max - min) + min;
@@ -79,10 +106,10 @@
     text.textContent = textList[Math.floor(Math.random() * textList.length)];
     text.style.left = random(0, window.innerWidth - 100) + 'px';
     text.style.top = '-50px';
-    text.style.fontSize = random(16, 36) + 'px';
-    text.style.animationDuration = random(3, 6) + 's';
-    container.appendChild(text);
-    text.addEventListener('animationend', () => container.removeChild(text));
+    text.style.fontSize = random(18, 40) + 'px';
+    text.style.animationDuration = random(2, 5) + 's';
+    overlay.appendChild(text);
+    text.addEventListener('animationend', () => overlay.removeChild(text));
   }
 
   function createHeart() {
@@ -92,17 +119,18 @@
     heart.style.left = random(0, window.innerWidth - 30) + 'px';
     heart.style.top = '-30px';
     heart.style.fontSize = random(16, 40) + 'px';
-    heart.style.animationDuration = random(2, 5) + 's';
-    container.appendChild(heart);
-    heart.addEventListener('animationend', () => container.removeChild(heart));
+    heart.style.animationDuration = random(2, 4) + 's';
+    overlay.appendChild(heart);
+    heart.addEventListener('animationend', () => overlay.removeChild(heart));
   }
 
+  // Tạo hiệu ứng rơi liên tục
   setInterval(() => {
     if (document.querySelectorAll('.falling-text').length < maxTexts) createFallingText();
     if (document.querySelectorAll('.heart').length < maxHearts) createHeart();
-  }, 100);
+  }, 80);
 
-  // Xoay theo chuột hoặc cảm ứng (lướt tay)
+  // Xoay nền theo chuột/touch
   let rotateX = 0, rotateY = 0;
   let lastX = 0, lastY = 0;
   let dragging = false;
@@ -111,16 +139,15 @@
     rotateY += dx * 0.2;
     rotateX -= dy * 0.2;
     rotateX = Math.max(-60, Math.min(60, rotateX));
-    container.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    scene.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
   }
 
-  // PC: mouse
+  // PC: chuột
   document.addEventListener('mousedown', e => {
     dragging = true;
     lastX = e.clientX;
     lastY = e.clientY;
   });
-
   document.addEventListener('mouseup', () => dragging = false);
   document.addEventListener('mousemove', e => {
     if (!dragging) return;
@@ -131,13 +158,12 @@
     lastY = e.clientY;
   });
 
-  // Mobile: touch
+  // Mobile: vuốt tay
   document.addEventListener('touchstart', e => {
     dragging = true;
     lastX = e.touches[0].clientX;
     lastY = e.touches[0].clientY;
   });
-
   document.addEventListener('touchend', () => dragging = false);
   document.addEventListener('touchmove', e => {
     if (!dragging) return;
@@ -151,4 +177,3 @@
 
 </body>
 </html>
-
