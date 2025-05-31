@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Anh yêu em + Trái tim bay</title>
+<style>
+  body {
+    background: #fff;
+    overflow: hidden;
+    height: 100vh;
+    margin: 0;
+    position: relative;
+    font-family: 'Arial', sans-serif;
+  }
+  .falling-text {
+    position: absolute;
+    font-size: 2rem;
+    color: #e91e63;
+    font-weight: bold;
+    user-select: none;
+    pointer-events: none;
+    opacity: 0.8;
+    animation-name: fallText;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+  .heart {
+    position: absolute;
+    font-size: 24px;
+    color: #e91e63;
+    user-select: none;
+    pointer-events: none;
+    opacity: 0.8;
+    animation-name: fallHeart;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+  @keyframes fallText {
+    to {
+      transform: translateY(100vh);
+      opacity: 0;
+    }
+  }
+  @keyframes fallHeart {
+    to {
+      transform: translateY(100vh);
+      opacity: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<script>
+  const maxTexts = 200;  // số chữ "Anh yêu em" rơi cùng lúc
+  const maxHearts = 200; // số trái tim bay cùng lúc
+  const container = document.body;
+
+  function random(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  function createFallingText() {
+    const text = document.createElement('div');
+    text.classList.add('falling-text');
+    text.textContent = "Anh yêu em";
+    text.style.left = random(0, window.innerWidth - 120) + 'px';
+    text.style.top = '-50px';
+    text.style.fontSize = random(16, 36) + 'px';
+    text.style.opacity = random(0.5, 1);
+    text.style.animationDuration = random(4, 8) + 's';
+
+    container.appendChild(text);
+
+    text.addEventListener('animationend', () => {
+      container.removeChild(text);
+    });
+  }
+
+  function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.textContent = "❤️";
+    heart.style.left = random(0, window.innerWidth - 30) + 'px';
+    heart.style.top = '-30px';
+    heart.style.fontSize = random(16, 40) + 'px';
+    heart.style.opacity = random(0.5, 1);
+    heart.style.animationDuration = random(3, 8) + 's';
+
+    container.appendChild(heart);
+
+    heart.addEventListener('animationend', () => {
+      container.removeChild(heart);
+    });
+  }
+
+  setInterval(() => {
+    if (document.querySelectorAll('.falling-text').length < maxTexts) {
+      createFallingText();
+    }
+    if (document.querySelectorAll('.heart').length < maxHearts) {
+      createHeart();
+    }
+  }, 200);
+</script>
+
+</body>
+</html>
