@@ -1,61 +1,74 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Anh yêu em + Trái tim bay</title>
-<style>
-  body {
-    background: #fff;
-    overflow: hidden;
-    height: 100vh;
-    margin: 0;
-    position: relative;
-    font-family: 'Arial', sans-serif;
-  }
-  .falling-text {
-    position: absolute;
-    font-size: 2rem;
-    color: #e91e63;
-    font-weight: bold;
-    user-select: none;
-    pointer-events: none;
-    opacity: 0.8;
-    animation-name: fallText;
-    animation-timing-function: linear;
-    animation-fill-mode: forwards;
-  }
-  .heart {
-    position: absolute;
-    font-size: 24px;
-    color: #e91e63;
-    user-select: none;
-    pointer-events: none;
-    opacity: 0.8;
-    animation-name: fallHeart;
-    animation-timing-function: linear;
-    animation-fill-mode: forwards;
-  }
-  @keyframes fallText {
-    to {
-      transform: translateY(100vh);
-      opacity: 0;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nguyên đẹp trai + Anh yêu em</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #fff;
+      font-family: 'Arial', sans-serif;
+      perspective: 1000px;
+      transition: perspective 0.3s ease;
     }
-  }
-  @keyframes fallHeart {
-    to {
-      transform: translateY(100vh);
-      opacity: 0;
+
+    #scene {
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transform-origin: center center;
+      position: relative;
     }
-  }
-</style>
+
+    .falling-text, .heart {
+      position: absolute;
+      user-select: none;
+      pointer-events: none;
+      opacity: 0.8;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
+    }
+
+    .falling-text {
+      font-size: 2rem;
+      color: #e91e63;
+      font-weight: bold;
+      animation-name: fallText;
+    }
+
+    .heart {
+      font-size: 24px;
+      color: #e91e63;
+      animation-name: fallHeart;
+    }
+
+    @keyframes fallText {
+      to {
+        transform: translateY(100vh) translateZ(100px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes fallHeart {
+      to {
+        transform: translateY(100vh) translateZ(100px);
+        opacity: 0;
+      }
+    }
+  </style>
 </head>
 <body>
 
+<div id="scene"></div>
+
 <script>
-  const maxTexts = 200;  // số chữ "Anh yêu em" rơi cùng lúc
-  const maxHearts = 200; // số trái tim bay cùng lúc
-  const container = document.body;
+  const container = document.getElementById('scene');
+  const maxTexts = 300;
+  const maxHearts = 150;
+  const textList = ["Anh yêu em", "Nguyên đẹp trai"];
 
   function random(min, max) {
     return Math.random() * (max - min) + min;
@@ -64,18 +77,13 @@
   function createFallingText() {
     const text = document.createElement('div');
     text.classList.add('falling-text');
-    text.textContent = "Anh yêu em";
+    text.textContent = textList[Math.floor(Math.random() * textList.length)];
     text.style.left = random(0, window.innerWidth - 120) + 'px';
     text.style.top = '-50px';
     text.style.fontSize = random(16, 36) + 'px';
-    text.style.opacity = random(0.5, 1);
-    text.style.animationDuration = random(4, 8) + 's';
-
+    text.style.animationDuration = random(3, 7) + 's';
     container.appendChild(text);
-
-    text.addEventListener('animationend', () => {
-      container.removeChild(text);
-    });
+    text.addEventListener('animationend', () => container.removeChild(text));
   }
 
   function createHeart() {
@@ -85,24 +93,37 @@
     heart.style.left = random(0, window.innerWidth - 30) + 'px';
     heart.style.top = '-30px';
     heart.style.fontSize = random(16, 40) + 'px';
-    heart.style.opacity = random(0.5, 1);
-    heart.style.animationDuration = random(3, 8) + 's';
-
+    heart.style.animationDuration = random(3, 6) + 's';
     container.appendChild(heart);
-
-    heart.addEventListener('animationend', () => {
-      container.removeChild(heart);
-    });
+    heart.addEventListener('animationend', () => container.removeChild(heart));
   }
 
   setInterval(() => {
-    if (document.querySelectorAll('.falling-text').length < maxTexts) {
-      createFallingText();
-    }
-    if (document.querySelectorAll('.heart').length < maxHearts) {
-      createHeart();
-    }
-  }, 200);
+    if (document.querySelectorAll('.falling-text').length < maxTexts) createFallingText();
+    if (document.querySelectorAll('.heart').length < maxHearts) createHeart();
+  }, 100);
+
+  // Xoay theo chuột
+  document.addEventListener('mousemove', (e) => {
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const offsetX = (e.clientX - centerX) / centerX;
+    const offsetY = (e.clientY - centerY) / centerY;
+    const rotateY = offsetX * 20;
+    const rotateX = -offsetY * 20;
+    container.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  });
+
+  // Điều chỉnh perspective theo thiết bị
+  function adjustPerspective() {
+    const scale = window.innerWidth / window.innerHeight;
+    const base = 1000;
+    const perspectiveValue = Math.max(600, base * scale);
+    document.body.style.perspective = perspectiveValue + 'px';
+  }
+
+  window.addEventListener('resize', adjustPerspective);
+  adjustPerspective(); // khi load
 </script>
 
 </body>
