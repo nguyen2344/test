@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Yêu em 3D - Vuốt và Chuột</title>
+  <title>Tặng em </title>
   <style>
     html, body {
       height: 100%;
@@ -49,6 +49,8 @@
     .falling-text {
       font-size: 2rem;
       animation-name: fallText;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+
     }
 
     .heart {
@@ -69,39 +71,92 @@
         opacity: 0;
       }
     }
+    #center-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #e91e63;
+  border-radius: 20px;
+  transform: translate(-50%, -50%) rotateX(0deg) rotateY(0deg);
+  transform-style: preserve-3d;
+  z-index: 20;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: transform 0.1s linear;
+  backdrop-filter: blur(4px);
+}
+
+#center-box img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  user-select: none;
+}
+
   </style>
 </head>
 <body>
 
 <div id="scene">
-  <div id="wrapper"></div>
+  <div id="wrapper">
+    <div id="center-box">
+      <img src="https://i.imgur.com/3zQZx2r.png" alt="Đéo có ny lên để trống" />
+    </div>
+    
+  </div>
 </div>
 
 <script>
   const wrapper = document.getElementById('wrapper');
-  const maxTexts = 80;
-  const maxHearts = 60;
+  const maxTexts = 100;
+  const maxHearts = 80;
 
   function random(min, max) {
     return Math.random() * (max - min) + min;
   }
+  let recentPositions = [];
+
+  function getNonOverlappingX(min, max, spacing = 60) {
+    let tries = 0;
+    let posX;
+    do {
+      posX = Math.floor(random(min, max));
+      tries++;
+    } while (recentPositions.some(p => Math.abs(p - posX) < spacing) && tries < 10);
+    recentPositions.push(posX);
+    if (recentPositions.length > 10) recentPositions.shift(); // giữ 10 vị trí gần nhất
+    return posX;
+  }
 
   function createFallingText() {
+    
     const text = document.createElement('div');
     text.classList.add('falling-text');
-    text.textContent = "Anh yêu em";
-    const posX = random(0, window.innerWidth - 150);
+    text.textContent = "Chúc bé 1/6 vui vẻ =))";
+
+    const posX = getNonOverlappingX(0, window.innerWidth - 150, 150);
     text.style.left = posX + 'px';
-    text.style.top = '-50px';
-    const fontSize = random(16, 40);
+    text.style.top = '-' + random(50, 250) + 'px'; // để không bị dính nhau lúc rơi
+
+    const fontSize = random(10, 18);
     text.style.fontSize = fontSize + 'px';
-    const depthZ = random(-1000, 0);
-    const animDuration = random(5, 10);
+
+    const depthZ = random(-1000, 0); // giảm chiều sâu để dễ đọc hơn
+    const animDuration = random(8, 16);
     text.style.animationDuration = animDuration + 's';
+    
     text.style.transform = `translateZ(${depthZ}px)`;
     wrapper.appendChild(text);
+
     text.addEventListener('animationend', () => wrapper.removeChild(text));
   }
+
 
   function createHeart() {
     const heart = document.createElement('div');
@@ -112,9 +167,10 @@
     heart.style.top = '-40px';
     const fontSize = random(16, 40);
     heart.style.fontSize = fontSize + 'px';
-    const depthZ = random(-1000, 0);
+    const depthZ = random(-3000, 0);
     const animDuration = random(4, 9);
     heart.style.animationDuration = animDuration + 's';
+    
     heart.style.transform = `translateZ(${depthZ}px)`;
     wrapper.appendChild(heart);
     heart.addEventListener('animationend', () => wrapper.removeChild(heart));
@@ -123,7 +179,7 @@
   setInterval(() => {
     if (wrapper.querySelectorAll('.falling-text').length < maxTexts) createFallingText();
     if (wrapper.querySelectorAll('.heart').length < maxHearts) createHeart();
-  }, 50);
+  }, 350);
 
   // Xoay wrapper theo chuột (PC)
   let rotateX = 0;
@@ -190,6 +246,10 @@
 
   window.addEventListener('resize', adjustPerspective);
   adjustPerspective();
+  const centerBox = document.getElementById('center-box');
+function updateCenterBoxRotation() {
+  centerBox.style.transform = `translate(-50%, -50%) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+}
 </script>
 
 </body>
